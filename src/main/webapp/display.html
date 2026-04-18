@@ -1,0 +1,1119 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Dance Tracker Admin</title>
+
+<style>
+body { font-family: Arial, sans-serif; margin: 20px; }
+h1 { margin-bottom: 20px; }
+button, input[type=submit] { margin: 5px; padding: 10px 15px; cursor: pointer; }
+form { display: none; margin-top: 20px; border: 1px solid #ccc; padding: 15px; width: 420px; }
+form input, form select { display: block; margin: 10px 0; padding: 6px; width: 100%; }
+
+.card-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 20px;
+  margin-top: 30px;
+}
+.card {
+  border: 1px solid #ccc;
+  padding: 20px;
+  border-radius: 12px;
+  background: #f9f9f9;
+  cursor: pointer;
+  transition: 0.25s ease;
+  text-align: center;
+}
+.card:hover { transform: translateY(-6px); box-shadow: 0 8px 20px rgba(0,0,0,0.15); }
+.card h3 { margin-bottom: 8px; }
+.card p { font-size: 14px; color: #555; }
+
+#subtopicsList div{ padding: 6px 0; border-bottom: 1px dashed #ddd; }
+#coursesDebug{ margin-top:10px; color:#555; }
+
+/* Attendance table styling */
+#attendanceTable {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 10px;
+}
+#attendanceTable th, #attendanceTable td {
+  border: 1px solid #ccc;
+  padding: 8px;
+  text-align: center;
+}
+#attendanceDebug{ margin-top:10px; color:#555; }
+.academy-btn {
+  padding: 10px 14px;
+  margin: 6px;
+  border: 1px solid #bbb;
+  border-radius: 10px;
+  background: #fff;
+  cursor: pointer;
+}
+.academy-btn.selected {
+  border-color: #2c80b4;
+  box-shadow: 0 0 0 3px rgba(52,152,219,0.25);
+}
+</style>
+
+<script>
+function submitAcademySchedule() {
+	  const rows = [];
+	  document.querySelectorAll("#academyScheduleBody tr").forEach(tr => {
+	    const day  = tr.children[0].textContent.trim(); // Wed
+	    const from = tr.children[1].textContent.trim(); // 17:00 (or display text)
+	    const to   = tr.children[2].textContent.trim(); // 20:00
+	    const hrs  = tr.children[3].textContent.trim(); // 3.00
+
+	    rows.push({ day_name: day, from_time: from, to_time: to, hours: hrs });
+	  });
+
+	  if (rows.length === 0) {
+	    alert("Add at least one slot before submitting.");
+	    return false;
+	  }
+
+	  // send as JSON string
+	  document.getElementById("schedule_json").value = JSON.stringify(rows);
+
+	  // allow normal form submit
+	  document.getElementById("academySaveMsg").textContent = "Saving...";
+	  return true;
+	}
+function showAcademyIncome() {
+	  showForm('academyIncomeForm');
+	}
+	
+	function removeAcademyRow(btn) {
+	  btn.closest("tr").remove();
+	  recalcAcademyTotalHours();
+	}
+
+	function recalcAcademyTotalHours() {
+		  let total = 0;
+		  document.querySelectorAll("#academyScheduleBody tr").forEach(tr => {
+		    const h = parseFloat(tr.children[4].textContent) || 0; // HOURS COLUMN = 4
+		    total += h;
+		  });
+		  document.getElementById("academyTotalHours").textContent = total.toFixed(2);
+		}
+	let selectedAcademyDay = "";
+	let selectedAcademyFrom = "";
+	let selectedAcademyTo = "";
+
+	function selectAcademyDay(day) {
+	  selectedAcademyDay = day;
+
+	  // UI highlight
+	  document.querySelectorAll(".academy-day-btn").forEach(b => b.classList.remove("selected"));
+	  document.getElementById("dayBtn_" + day).classList.add("selected");
+	}
+
+	function selectAcademyTime(from, to, btnId) {
+
+		  // highlight button
+		  document.querySelectorAll(".academy-time-btn").forEach(b => b.classList.remove("selected"));
+		  document.getElementById(btnId).classList.add("selected");
+
+		  // AUTO-FILL manual time inputs
+		  document.getElementById("academyFrom").value = from;
+		  document.getElementById("academyTo").value = to;
+		}
+
+	function addAcademySlot() {
+
+		  const date = document.getElementById("academyDate").value;
+		  const day  = selectedAcademyDay;
+		  const from = document.getElementById("academyFrom").value;
+		  const to   = document.getElementById("academyTo").value;
+
+		  if (!date) {
+		    alert("Please select a date.");
+		    return;
+		  }
+
+		  if (!day) {
+		    alert("Please select a day.");
+		    return;
+		  }
+
+		  if (!from || !to) {
+		    alert("Please select or enter time.");
+		    return;
+		  }
+
+		  if (to <= from) {
+		    alert("To time must be greater than From time.");
+		    return;
+		  }
+
+		  // calculate hours
+		  const fromDate = new Date("1970-01-01T" + from + ":00");
+		  const toDate   = new Date("1970-01-01T" + to + ":00");
+		  const hours = ((toDate - fromDate) / (1000 * 60 * 60)).toFixed(2);
+
+		  const tbody = document.getElementById("academyScheduleBody");
+
+		  const tr = document.createElement("tr");
+
+		  tr.innerHTML = `
+		    <td>${date}</td>
+		    <td>${day}</td>
+		    <td>${from}</td>
+		    <td>${to}</td>
+		    <td>${hours}</td>
+		    <td><button type="button" onclick="removeAcademyRow(this)">Remove</button></td>
+		  `;
+
+		  tbody.appendChild(tr);
+
+		  recalcAcademyTotalHours();
+
+		  // clear manual time after adding
+		  document.getElementById("academyFrom").value = "";
+		  document.getElementById("academyTo").value = "";
+		}
+function showIncomePanel() {
+	  showForm('transactionPanel');
+	  document.getElementById("incomePanel").style.display = "block";
+	}
+
+	function showTempleIncome() {
+	  showForm('templeIncomeForm');
+	}
+
+	function showHomeIncome() {
+		  showForm('homeIncomeForm');
+		}
+	function showOnlineIncome() {
+		  showForm('onlineIncomeForm');
+		}
+	async function loadTempleIncome() {
+	  const d = document.getElementById("templeIncomeDate").value;
+	  const box = document.getElementById("templeIncomeResult");
+
+	  if (!d) {
+	    box.innerHTML = "<p style='color:red;'>Please select a date.</p>";
+	    return;
+	  }
+
+	  box.innerHTML = "Loading...";
+
+	  try {
+	    const res = await fetch(`${API_BASE}?action=get_temple_income&class_date=${d}`);
+	    if (!res.ok) throw new Error("HTTP " + res.status);
+
+	    const data = await res.json();
+
+	    if (!data.found) {
+	      box.innerHTML = "<p>No record found for that date.</p>";
+	      return;
+	    }
+
+	    box.innerHTML = `
+	      <table border="1" cellpadding="8">
+	        <tr>
+	          <th>Date</th>
+	          <th>Present Count</th>
+	          <th>Rate</th>
+	          <th>Total</th>
+	        </tr>
+	        <tr>
+	          <td>${data.class_date}</td>
+	          <td>${data.present_count}</td>
+	          <td>$${data.rate}</td>
+	          <td><b>$${data.total_amount}</b></td>
+	        </tr>
+	      </table>
+	    `;
+	  } catch (err) {
+	    box.innerHTML = "<p style='color:red;'>Error: " + err.message + "</p>";
+	  }
+	}
+	async function loadAllCourses(selectId) {
+		  const select = document.getElementById(selectId);
+		  if (!select) return;
+
+		  select.innerHTML = `<option value="">-- Select Course --</option>`;
+
+		  try {
+		    const res = await fetch(`${API_BASE}?action=getAllCourses`);
+		    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+
+		    const courses = await res.json();
+
+		    courses.forEach(c => {
+		      const opt = document.createElement("option");
+		      opt.value = c.course_id;
+		      opt.textContent = c.course_name;
+		      select.appendChild(opt);
+		    });
+		  } catch (err) {
+		    alert("Error loading courses: " + err.message);
+		  }
+		}
+	async function loadHomeIncome() {
+		  const d = document.getElementById("homeIncomeDate").value;
+		  const box = document.getElementById("homeIncomeResult");
+
+		  if (!d) {
+		    box.innerHTML = "<p style='color:red;'>Please select a date.</p>";
+		    return;
+		  }
+
+		  box.innerHTML = "Loading...";
+
+		  try {
+		    const res = await fetch(`${API_BASE}?action=get_home_income&class_date=${d}`);
+		    const data = await res.json();
+
+		    if (!data.found) {
+		      box.innerHTML = "<p>No record found for that date.</p>";
+		      return;
+		    }
+
+		    box.innerHTML = `
+		      <table border="1" cellpadding="8">
+		        <tr>
+		          <th>Date</th>
+		          <th>Present Count</th>
+		          <th>Rate</th>
+		          <th>Total</th>
+		        </tr>
+		        <tr>
+		          <td>${data.class_date}</td>
+		          <td>${data.present_count}</td>
+		          <td>$${data.rate}</td>
+		          <td><b>$${data.total_amount}</b></td>
+		        </tr>
+		      </table>
+		    `;
+		  } catch (err) {
+		    box.innerHTML = "<p style='color:red;'>Error loading data.</p>";
+		  }
+		}
+	function showForm(formId) {
+		  // hide ALL forms
+		  document.querySelectorAll('form').forEach(f => {
+		    f.style.display = 'none';
+		  });
+
+		  // show only the selected one
+		  const activeForm = document.getElementById(formId);
+		  if (activeForm) {
+		    activeForm.style.display = 'block';
+		  }
+
+		  // load courses where needed
+		  if (formId === 'topicForm') {
+		    loadAllCourses('topicCourseSelect');
+		  }
+
+		  if (formId === 'subtopicForm') {
+		    loadAllCourses('subtopicCourse');
+		    document.getElementById("subtopicTopic").innerHTML = `<option value="">-- Select Topic --</option>`;
+		    document.getElementById("hiddenSubtopicCourseId").value = "";
+		  }
+
+		  if (formId === 'studentProgressForm') {
+		    loadAllCourses('progress_course_id');
+		  }
+		}
+
+/* Build servlet URL safely (works even if project name changes) */
+//const API_BASE = window.location.origin + "/" + window.location.pathname.split("/")[1] + "/DanceTracker";
+const API_BASE = "DanceServlet";
+/* ================= COURSES (topics/subtopics) ================= */
+function setDebug(msg) {
+  const el = document.getElementById("coursesDebug");
+  if (el) el.textContent = msg || "";
+}
+
+async function onCourseChange() {
+  showForm('coursesPanel');
+
+  const courseId = document.getElementById("courseSelect").value;
+  const topicSelect = document.getElementById("topicSelect");
+  const subtopicsDiv = document.getElementById("subtopicsList");
+
+  topicSelect.innerHTML = `<option value="">-- Select a topic --</option>`;
+  topicSelect.disabled = true;
+  subtopicsDiv.innerHTML = "";
+  setDebug("");
+
+  if (!courseId) return;
+
+  setDebug("Loading topics...");
+
+  try {
+    const res = await fetch(`${API_BASE}?action=getTopics&course_id=${courseId}`);
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const topics = await res.json();
+
+    if (!topics.length) {
+      setDebug("No topics found for this course.");
+      return;
+    }
+
+    topics.forEach(t => {
+      const opt = document.createElement("option");
+      opt.value = t.topic_id;
+      opt.textContent = `${t.topic_order}. ${t.topic_name}`;
+      topicSelect.appendChild(opt);
+    });
+
+    topicSelect.disabled = false;
+    setDebug("Topics loaded. Now select a topic.");
+  } catch (err) {
+    setDebug("Error loading topics: " + err.message);
+  }
+}
+async function loadStudentsByCourse() {
+	  const courseId = document.getElementById("progress_course_id").value;
+	  const studentSelect = document.getElementById("progress_student_id");
+
+	  studentSelect.innerHTML = `<option value="">-- Select Student --</option>`;
+
+	  if (!courseId) return;
+
+	  try {
+	    const res = await fetch(`DanceServlet?action=getStudentsByCourse&course_id=${courseId}`);
+	    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+
+	    const students = await res.json();
+
+	    students.forEach(s => {
+	      const opt = document.createElement("option");
+	      opt.value = s.student_id;
+	      opt.textContent = s.name;
+	      studentSelect.appendChild(opt);
+	    });
+	  } catch (err) {
+	    alert("Error loading students: " + err.message);
+	  }
+	}
+async function loadTopicsForSubtopic() {
+	  const courseId = document.getElementById("subtopicCourse").value;
+	  const topicSelect = document.getElementById("subtopicTopic");
+
+	  document.getElementById("hiddenSubtopicCourseId").value = courseId;
+	  topicSelect.innerHTML = `<option value="">-- Select Topic --</option>`;
+
+	  if (!courseId) return;
+
+	  try {
+	    const res = await fetch(`${API_BASE}?action=getTopics&course_id=${courseId}`);
+	    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+
+	    const topics = await res.json();
+
+	    topics.forEach(t => {
+	      const opt = document.createElement("option");
+	      opt.value = t.topic_id;
+	      opt.textContent = t.topic_name;
+	      topicSelect.appendChild(opt);
+	    });
+	  } catch (err) {
+	    alert("Error loading topics: " + err.message);
+	  }
+	}
+async function onTopicChange() {
+  const topicId = document.getElementById("topicSelect").value;
+  const courseId = document.getElementById("courseSelect").value;
+  const subtopicsDiv = document.getElementById("subtopicsList");
+
+  subtopicsDiv.innerHTML = "";
+  if (!topicId || !courseId) return;
+
+  setDebug("Loading subtopics...");
+
+  try {
+    const res = await fetch(`${API_BASE}?action=getSubtopics&topic_id=${topicId}&course_id=${courseId}`);
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+
+    const text = await res.text();
+    let subs;
+    try { subs = JSON.parse(text); }
+    catch (e) { throw new Error(text); }
+
+    setDebug(`Subtopics loaded. Count = ${subs.length}`);
+
+    if (!subs.length) {
+      subtopicsDiv.innerHTML = "No subtopics found for this topic.";
+      return;
+    }
+
+    subtopicsDiv.innerHTML = subs.map(s => `
+      <div>${s.subtopic_id}. ${s.subtopic_name || ""}</div>
+    `).join("");
+  } catch (err) {
+    subtopicsDiv.innerHTML = "Error loading subtopics.";
+    setDebug("Error loading subtopics: " + err.message);
+  }
+}
+/* ================= ATTENDANCE ================= */
+async function loadAttendanceStudents() {
+  showForm('attendanceForm');
+
+  const branchId = document.getElementById("att_branch_id").value;
+  const day = document.getElementById("att_day").value;
+  const courseId = document.getElementById("att_course_id").value;
+
+  const tbody = document.getElementById("attendanceTbody");
+  const debugDiv = document.getElementById("attendanceDebug");
+
+  tbody.innerHTML = "";
+  debugDiv.textContent = "Loading students...";
+
+  document.getElementById("hidden_branch_id").value = branchId;
+  document.getElementById("hidden_day").value = day;
+  document.getElementById("hidden_course_id").value = courseId;
+
+  try {
+    const url = `${API_BASE}?action=getStudentsForAttendance&branch_id=${branchId}&day=${encodeURIComponent(day)}&course_id=${courseId}`;
+    const res = await fetch(url);
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const students = await res.json();
+
+    if (!students.length) {
+      debugDiv.textContent = "Loaded 0 students (no match).";
+      document.getElementById("attendanceSubmitBtn").style.display = "none";
+      return;
+    }
+
+    students.forEach(s => {
+      const tr = document.createElement("tr");
+
+      tr.innerHTML = `
+        <td>
+          <input type="checkbox" name="present_student_id" value="${s.student_id}" autocomplete="off">
+          <input type="hidden" name="all_student_id" value="${s.student_id}">
+        </td>
+        <td>${s.name}</td>
+        <td>${s.days}</td>
+        <td>
+          <input type="text" name="comment_${s.student_id}" placeholder="Comment..." style="width: 98%;">
+        </td>
+      `;
+      tbody.appendChild(tr);
+    });
+
+    document.querySelectorAll("#attendanceTbody input[type=checkbox]").forEach(cb => cb.checked = false);
+
+    document.getElementById("attendanceSubmitBtn").style.display = "block";
+    debugDiv.textContent = `Loaded ${students.length} students. Check present students, then Submit.`;
+
+  } catch (err) {
+    debugDiv.textContent = "ERROR loading students: " + err.message;
+    document.getElementById("attendanceSubmitBtn").style.display = "none";
+  }
+}
+async function saveQuickNote() {
+	  const txt = document.getElementById("quickNoteText").value.trim();
+	  const msg = document.getElementById("quickNoteMsg");
+
+	  if (!txt) {
+	    msg.textContent = "Please type a note.";
+	    return;
+	  }
+
+	  msg.textContent = "Saving...";
+
+	  const formData = new URLSearchParams();
+	  formData.append("action", "save_note");
+	  formData.append("note_text", txt);
+
+	  const res = await fetch("DanceServlet", {
+	    method: "POST",
+	    headers: { "Content-Type": "application/x-www-form-urlencoded" },
+	    body: formData.toString()
+	  });
+
+	  const data = await res.json();
+
+	  if (data.ok) {
+	    msg.textContent = "Saved ✅";
+	    document.getElementById("quickNoteText").value = "";
+	  } else {
+	    msg.textContent = data.error || "Save failed";
+	  }
+	}
+function setTime(from, to) {
+	  document.getElementById("academyFrom").value = from;
+	  document.getElementById("academyTo").value = to;
+	}
+
+	function addAcademyIncomeRow() {
+	  const date = document.getElementById("academyDate").value;
+	  const day  = document.getElementById("academyDay").value;
+	  const from = document.getElementById("academyFrom").value;
+	  const to   = document.getElementById("academyTo").value;
+
+	  if (!date || !day || !from || !to) {
+	    alert("Please select date, day, from time and to time.");
+	    return;
+	  }
+	  if (to <= from) {
+	    alert("To time must be greater than From time.");
+	    return;
+	  }
+
+	  const fromDate = new Date("1970-01-01T" + from + ":00");
+	  const toDate   = new Date("1970-01-01T" + to + ":00");
+	  const hours = ((toDate - fromDate) / (1000 * 60 * 60)).toFixed(2);
+
+	  const tbody = document.getElementById("academyIncomeBody");
+	  const tr = document.createElement("tr");
+
+	  tr.innerHTML = `
+	    <td>${date}</td>
+	    <td>${day}</td>
+	    <td>${from}</td>
+	    <td>${to}</td>
+	    <td>${hours}</td>
+	    <td><button type="button" onclick="this.closest('tr').remove(); recalcAcademyIncomeTotal();">Remove</button></td>
+	  `;
+
+	  tbody.appendChild(tr);
+	  recalcAcademyIncomeTotal();
+
+	  // clear times
+	  document.getElementById("academyFrom").value = "";
+	  document.getElementById("academyTo").value = "";
+	}
+
+	function recalcAcademyIncomeTotal() {
+	  let total = 0;
+	  document.querySelectorAll("#academyIncomeBody tr").forEach(tr => {
+	    total += parseFloat(tr.children[4].textContent) || 0;
+	  });
+	  document.getElementById("academyIncomeTotalHours").textContent = total.toFixed(2);
+	}
+
+	
+</script>
+</head>
+
+<body>
+<h1>Dance Tracker Admin Dashboard</h1>
+
+<div class="top-buttons">
+  <button onclick="showForm('studentForm')">Add Student</button>
+  <button onclick="showForm('branchForm')">Add Branch</button>
+  <button onclick="showForm('teacherForm')">Add Teacher</button>
+  <button onclick="showForm('courseForm')">Add Course</button>
+  
+<a href="DanceServlet?action=view_students">
+    <button type="button">View Students</button>
+  </a>
+  <a href="DanceTracker?action=view_makeup_counter">
+  <button type="button">Makeup Classes</button>
+</a>
+  
+</div>
+
+<div class="card-container">
+  <div class="card" onclick="showForm('attendanceForm')">
+    <h3>Attendance</h3><p>Load student attendance</p>
+  </div>
+  <div class="card" onclick="showForm('coursesPanel')">
+    <h3>Courses</h3><p>View or manage courses</p>
+  </div>
+  <div class="card" onclick="showForm('transactionPanel')">
+    <h3>Transactions</h3><p>Provision, Income, Expenses</p>
+  </div>
+  <div class="card" onclick="showForm('miscPanel')">
+    <h3>Misc</h3><p>Accessories and Notes</p>
+  </div>
+  <div class="card" onclick="showForm('studentprogressPanel')">
+    <h3>Student Progress</h3><p>View student progress</p>
+  </div>
+</div>
+
+<div id="message"></div>
+
+<!-- STUDENT -->
+<form id="studentForm" action="DanceTracker" method="post">
+  <h3>Student</h3>
+  <input type="hidden" name="action" value="student">
+
+  <label>Enter Name:</label>
+  <input type="text" name="name" placeholder="Student Name" required>
+
+  <label>DOB:</label>
+  <input type="date" name="dob" required>
+
+  <label>Date Joined:</label>
+  <input type="date" name="date_joined" required>
+
+  <label>Attending day:</label>
+  <input type="text" name="days" placeholder="Days (Mon, Wed, Fri)" required>
+
+  <label>Select Location:</label>
+  <select name="branch">
+    <option value="1">Home classes</option>
+    <option value="2">Online classes</option>
+    <option value="3">Temple classes</option>
+    <option value="4">Academy classes</option>
+  </select>
+
+  <label>Select Class Mode:</label>
+  <select name="class_mode">
+    <option value="In-person">In-person</option>
+    <option value="online">Online</option>
+  </select>
+
+  <label>Select Course:</label>
+  <select name="course_id">
+  <option value="1">Parichay</option>
+  <option value="2">Prarambik</option>
+  <option value="3">Elementary</option>
+  <option value="4">Intermediate</option>
+  <option value="6">Elementary - Choreography</option>
+  <option value="9">Intermediate - Choreography</option>
+  <option value="5">Pre-Diploma</option>
+  <option value="7">BA-1</option>
+  <option value="8">BA-2</option>
+</select>
+  <input type="submit" value="Add Student">
+  <a href="DanceTracker?action=view_students"><button type="button">View List</button></a>
+</form>
+
+<!-- BRANCH -->
+<form id="branchForm" action="DanceTracker" method="post">
+  <h3>Branch</h3>
+  <input type="hidden" name="action" value="branch">
+
+  <input type="text" name="name" placeholder="Branch Name" required>
+  <input type="text" name="location" placeholder="Location" required>
+  <input type="text" name="address" placeholder="Address" required>
+  <input type="text" name="phone" placeholder="Phone Number" required>
+
+  <input type="submit" value="Add Branch">
+  <a href="DanceServlet?action=view_branches"><button type="button">View List</button></a>
+
+  <!-- ✅ NEW: shortcut to list page with Update/Delete buttons -->
+  <a href="DanceTracker?action=view_branches"><button type="button">Update/Delete</button></a>
+</form>
+
+<!-- TEACHER -->
+<form id="teacherForm" action="DanceTracker" method="post">
+  <h3>Teacher</h3>
+  <input type="hidden" name="action" value="teacher">
+
+  <input type="text" name="name" placeholder="Teacher Name" required>
+  <input type="text" name="address" placeholder="Address" required>
+
+  <label>Select Teacher Type:</label>
+  <select name="teacher_id">
+    <option value="1">Primary</option>
+    <option value="2">Secondary</option>
+    <option value="3">HOD</option>
+  </select>
+
+  <input type="submit" value="Add Teacher">
+  <a href="DanceServlet?action=view_teachers"><button type="button">View List</button></a>
+
+  <!-- ✅ NEW: shortcut to list page with Update/Delete buttons -->
+  <a href="DanceTracker?action=view_teachers"><button type="button">Update/Delete</button></a>
+</form>
+
+<!-- COURSE -->
+<form id="courseForm" action="DanceTracker" method="post">
+  <h3>Course</h3>
+  <input type="hidden" name="action" value="course">
+
+  <input type="text" name="course_name" placeholder="Course Name" required>
+
+  <input type="submit" value="Add Course">
+  <a href="DanceTracker?action=view_courses"><button type="button">View List</button></a>
+  <a href="DanceTracker?action=view_courses"><button type="button">Update/Delete</button></a>
+
+  <hr>
+
+  <button type="button" onclick="showForm('topicForm')">Add Topic</button>
+  <button type="button" onclick="showForm('subtopicForm')">Add Subtopic</button>
+</form>
+<form id="topicForm" action="DanceServlet" method="post">
+  <h3>Add Topic</h3>
+  <input type="hidden" name="action" value="add_topic">
+
+  <button type="button" onclick="showForm('courseForm')">⬅ Back</button>
+
+  <label>Select Course:</label>
+  <select name="course_id" id="topicCourseSelect" required>
+    <option value="">-- Select Course --</option>
+  </select>
+
+  <label>Topic Name:</label>
+  <input type="text" name="topic_name" placeholder="Topic Name" required>
+
+  <button type="submit">Save Topic</button>
+</form>
+
+<form id="subtopicForm" action="DanceServlet" method="post">
+  <h3>Add Subtopic</h3>
+  <input type="hidden" name="action" value="add_subtopic">
+  <input type="hidden" name="course_id" id="hiddenSubtopicCourseId">
+
+  <button type="button" onclick="showForm('courseForm')">⬅ Back</button>
+
+  <label>Select Course:</label>
+  <select id="subtopicCourse" onchange="loadTopicsForSubtopic()" required>
+    <option value="">-- Select Course --</option>
+  </select>
+
+  <label>Select Topic:</label>
+  <select name="topic_id" id="subtopicTopic" required>
+    <option value="">-- Select Topic --</option>
+  </select>
+
+  <label>Subtopic Name:</label>
+  <input type="text" name="subtopic_name" placeholder="Subtopic Name" required>
+
+  <button type="submit">Save Subtopic</button>
+</form>
+</select>
+
+<!-- ================= ATTENDANCE (FIXED - NO NESTED FORM) ================= -->
+<form id="attendanceForm" action="DanceServlet" method="post">
+  <h3>Attendance</h3>
+
+  <!-- this submit = SAVE attendance -->
+  <input type="hidden" name="action" value="saveAttendance">
+  <input type="hidden" name="branch_id" id="hidden_branch_id">
+  <input type="hidden" name="day" id="hidden_day">
+  <input type="hidden" name="course_id" id="hidden_course_id">
+
+  <label>Select Branch:</label>
+  <select id="att_branch_id">
+    <option value="1">Home Classes</option>
+    <option value="2">Online Classes</option>
+    <option value="3">Temple Classes</option>
+    <option value="4">Academy Classes</option>
+  </select>
+
+  <label>Select Day:</label>
+  <select id="att_day">
+    <option value="Mon">Monday</option>
+    <option value="Tue">Tuesday</option>
+    <option value="Wed">Wednesday</option>
+    <option value="Thurs">Thursday</option>
+    <option value="Fri">Friday</option>
+    <option value="Sat">Saturday</option>
+    <option value="Sun">Sunday</option>
+  </select>
+
+  <label>Select Course:</label>
+  <select id="att_course_id">
+  <option value="1">Parichay</option>
+  <option value="2">Prarambik</option>
+  <option value="3">Elementary</option>
+  <option value="4">Intermediate</option>
+  <option value="6">Elementary - Choreography</option>
+  <option value="9">Intermediate - Choreography</option>
+  <option value="5">Pre-Diploma</option>
+  <option value="7">BA-1</option>
+  <option value="8">BA-2</option>
+</select>
+
+<label>Select Date (optional):</label>
+<input type="date" name="class_date">
+
+  <!-- load students (NO submit) -->
+  <button type="button" onclick="loadAttendanceStudents()">Load Students</button>
+
+  <!-- NEW: view list -->
+  <a href="DanceTracker?action=view_attendance">
+    <button type="button">View List</button>
+  </a>
+
+  <hr>
+
+  <table id="attendanceTable">
+    <tr>
+      <th>Present</th>
+      <th>Name</th>
+      <th>Days</th>
+      <th>Comment</th>
+    </tr>
+    <tbody id="attendanceTbody"></tbody>
+  </table>
+
+  <br>
+
+  <!-- submit attendance -->
+  <input id="attendanceSubmitBtn" type="submit" value="Submit Attendance" style="display:none;">
+  <div id="attendanceDebug"></div>
+</form>
+
+<!-- COURSES PANEL -->
+<form id="coursesPanel">
+  <h3>Courses</h3>
+
+  <label>Select Course:</label>
+  <select id="courseSelect" onchange="onCourseChange()">
+    <option value="">-- Select a course --</option>
+    <option value="1">Parichay</option>
+<option value="2">Prarambik</option>
+<option value="3">Elementary</option>
+<option value="4">Intermediate</option>
+<option value="6">Elementary - Choreography</option>
+<option value="9">Intermediate - Choreography</option>
+<option value="5">Pre-Diploma</option>
+<option value="7">BA-1</option>
+<option value="8">BA-2</option>
+  </select>
+
+  <label>Select Topic:</label>
+  <select id="topicSelect" onchange="onTopicChange()" disabled>
+    <option value="">-- Select a topic --</option>
+  </select>
+
+  <hr>
+  <h4>Subtopics</h4>
+  <div id="subtopicsList"></div>
+  <div id="coursesDebug"></div>
+</form>
+
+<form id="transactionPanel">
+  <h3>Transactions</h3>
+    <button type="button" onclick="showIncomePanel()">Income</button>
+<button type="button" onclick="showForm('provisionForm')">Provision</button>  
+<button type="button" onclick="showForm('expensesForm')">Expenses</button>
+<a href="DanceServlet?action=view_rates">
+    <button type="button">Rates</button>
+  </a>
+
+  <div id="incomePanel" style="margin-top:15px; display:none;">
+    <button type="button" onclick="showTempleIncome()">Temple Income</button>
+    <button type="button" onclick="showHomeIncome()">Home Income</button>
+    <button type="button" onclick="showAcademyIncome()">Academy Income</button>
+    <button type="button" onclick="showOnlineIncome()">Online Income</button>
+    <button type="button" onclick="showForm('monthEndForm')">Process Month End</button>
+  </div>
+</form>
+<form id="monthEndForm" action="DanceServlet" method="post">
+  <h3>Process Month End</h3>
+
+  <button type="button" onclick="showForm('transactionPanel')">⬅ Back</button>
+
+  <a href="DanceServlet?action=view_month_end">
+    <button type="button">View Month End List</button>
+  </a>
+
+  <hr>
+
+  <input type="hidden" name="action" value="process_month_end">
+
+  <label>Start Date:</label>
+  <input type="date" name="start_date" required>
+
+  <label>End Date:</label>
+  <input type="date" name="end_date" required>
+
+  <button type="submit">Process</button>
+</form>
+<form id="provisionForm">
+  <h3>Provision</h3>
+
+  <button type="button" onclick="showForm('transactionPanel')">⬅ Back</button>
+
+  <a href="DanceServlet?action=view_provision">
+    <button type="button">View Provision List</button>
+  </a>
+</form>
+<form id="templeIncomeForm">
+  <h3>Temple Income</h3>
+
+  <label>Select Date:</label>
+  <input type="date" id="templeIncomeDate" required>
+
+  <button type="button" onclick="loadTempleIncome()">Load</button>
+<button type="button" onclick="showIncomePanel()">⬅ Back</button>
+
+  <div id="templeIncomeResult" style="margin-top:12px;"></div>
+</form>
+<form id="expensesForm" action="DanceServlet" method="post">
+  <h3>Expenses</h3>
+
+  <input type="hidden" name="action" value="save_expense">
+
+  <button type="button" onclick="showForm('transactionPanel')">⬅ Back</button>
+
+  <a href="DanceServlet?action=view_expenses">
+    <button type="button">View List</button>
+  </a>
+
+  <hr>
+
+  <label>Date:</label>
+  <input type="date" name="expense_date" required>
+
+  <label>Name:</label>
+  <input type="text" name="expense_name" placeholder="Expense name" required>
+
+  <label>Hours (optional):</label>
+  <input type="number" name="hours" step="0.25" min="0">
+
+ <p style="font-size:13px; color:#555;">
+   For MA class, $50 will be taken from the rounded income for # of hours.
+</p>
+
+  <button type="submit">Save Expense</button>
+</form>
+<form id="academyIncomeForm" action="DanceServlet" method="post">
+  <h3>Academy Income</h3>
+
+  <button type="button" onclick="showForm('transactionPanel')">⬅ Back</button>
+
+  <a href="DanceServlet?action=view_academy_income">
+    <button type="button">View List</button>
+  </a>
+
+  <hr>
+
+  <!-- IMPORTANT: tells servlet what to do -->
+  <input type="hidden" name="action" value="save_academy_income">
+
+  <label>Select Date:</label>
+  <input type="date" id="academyDate" name="class_date" required>
+
+  
+
+  <label>From Time:</label>
+  <input type="time" id="academyFrom" name="from_time" required>
+
+  <label>To Time:</label>
+  <input type="time" id="academyTo" name="to_time" required>
+
+  <div style="margin-top:8px;">
+    <button type="button" class="academy-btn" onclick="setTime('17:00','20:00')">5:00 PM - 8:00 PM</button>
+    <button type="button" class="academy-btn" onclick="setTime('08:30','12:30')">8:30 AM - 12:30 PM</button>
+  </div>
+
+  <button type="submit">Submit</button>
+  <div id="academyIncomeMsg" style="margin-top:10px; color:#555;"></div>
+</form>
+<form id="onlineIncomeForm" action="DanceServlet" method="post">
+  <input type="hidden" name="action" value="save_online_income">
+
+  <h3>Online Income</h3>
+
+  <button type="button" onclick="showIncomePanel()">⬅ Back</button>
+
+  <a href="DanceServlet?action=view_online_income">
+    <button type="button">View List</button>
+  </a>
+
+  <hr>
+
+  <input type="hidden" name="action" value="save_online_income">
+
+  <label>Select Date:</label>
+  <input type="date" name="class_date" required>
+
+  <label>Select Day:</label>
+  <select name="day_name" required>
+    <option value="">-- Select Day --</option>
+    <option value="Mon">Monday</option>
+    <option value="Tue">Tuesday</option>
+    <option value="Wed">Wednesday</option>
+    <option value="Thu">Thursday</option>
+    <option value="Fri">Friday</option>
+    <option value="Sat">Saturday</option>
+    <option value="Sun">Sunday</option>
+  </select>
+
+  <label>From Time:</label>
+  <input type="time" name="from_time">
+
+  <label>To Time:</label>
+  <input type="time" name="to_time">
+
+  <label>Hours (optional):</label>
+  <input type="number" name="hours" step="0.25" min="0">
+
+  <button type="submit">Submit</button>
+</form>
+<form id="homeIncomeForm">
+  <h3>Home Income</h3>
+
+
+  <label>Select Date:</label>
+  <input type="date" id="homeIncomeDate" required>
+
+  <button type="button" onclick="loadHomeIncome()">Load</button>
+  <button type="button" onclick="showIncomePanel()">⬅ Back</button>
+
+  <div id="homeIncomeResult" style="margin-top:12px;"></div>
+</form>
+<form id="studentProgressForm" action="DanceServlet" method="post">
+  <h3>Student Progress</h3>
+
+  <input type="hidden" name="action" value="save_student_progress">
+
+  <button type="button" onclick="showForm('studentprogressPanel')">⬅ Back</button>
+<a href="DanceServlet?action=view_student_progress">
+  <button type="button">View List</button>
+</a>
+  <hr>
+
+  <label>Date:</label>
+  <input type="date" name="progress_date" required>
+
+  <label>Course:</label>
+ <select name="course_id" id="progress_course_id" onchange="loadStudentsByCourse()" required>
+  <option value="">-- Select Course --</option>
+</select>
+
+  <label>Student Name:</label>
+  <select name="student_id" id="progress_student_id" required>
+    <option value="">-- Select Student --</option>
+  </select>
+
+  <label>Status (optional):</label>
+  <select name="status">
+    <option value="">-- Optional --</option>
+    <option value="Pass">Pass</option>
+    <option value="Fail">Fail</option>
+  </select>
+
+  <label>Comments:</label>
+  <textarea name="comments" rows="4" placeholder="Enter comments..."></textarea>
+
+  <button type="submit">Save</button>
+</form>
+
+<form id="miscPanel">
+  <h3>Misc</h3>
+  <button type="button">Accessories</button>
+<button type="button" onclick="window.location.href='DanceTracker?action=view_notes'">Notes</button>
+</form>
+
+<form id="studentprogressPanel">
+  <h3>Student Progress</h3>
+  <button type="button" onclick="showForm('studentProgressForm')">Open Student Progress</button>
+</form>
+<div id="quickNotesBox" style="
+  position:fixed; right:20px; bottom:20px; width:280px;
+  background:#fff; border:1px solid #ccc; border-radius:10px;
+  padding:12px; box-shadow:0 8px 25px rgba(0,0,0,0.12);
+  z-index:9999;
+">
+  <b>Quick Notes</b><br><br>
+
+  <textarea id="quickNoteText" style="width:100%; height:90px; resize:none;"
+    placeholder="Type a note..."></textarea>
+
+  <div style="margin-top:8px; text-align:right;">
+    <button type="button" onclick="saveQuickNote()">Save</button>
+  </div>
+
+  <div id="quickNoteMsg" style="font-size:12px; margin-top:6px;"></div>
+</div>
+</body>
+</html>
