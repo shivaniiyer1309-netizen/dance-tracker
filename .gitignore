@@ -1,0 +1,18 @@
+# Eclipse
+.metadata/
+.settings/
+.classpath
+.project
+
+# Java build files
+build/
+target/
+bin/
+*.class
+
+# Packaged application
+*.war
+*.jar
+
+# OS files
+.DS_Store

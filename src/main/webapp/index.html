@@ -1,0 +1,1101 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>RythmFlo | Dance Management Made Simple</title>
+
+    <style>
+
+        /* ------------------------------
+           BASIC PAGE SETUP
+        ------------------------------ */
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: "Segoe UI", Arial, sans-serif;
+            background: #fcfaff;
+            color: #27213c;
+        }
+
+
+        /* ------------------------------
+           NAVIGATION BAR
+        ------------------------------ */
+
+        nav {
+            width: 100%;
+            height: 85px;
+
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+
+            padding: 0 8%;
+
+            background: rgba(255, 255, 255, 0.92);
+
+            position: fixed;
+            top: 0;
+            left: 0;
+
+            z-index: 1000;
+
+            backdrop-filter: blur(12px);
+
+            border-bottom: 1px solid rgba(100, 70, 150, 0.08);
+        }
+
+
+        .logo {
+            font-size: 29px;
+            font-weight: 700;
+            letter-spacing: -1px;
+
+            color: #6240a8;
+        }
+
+
+        .logo span {
+            color: #b15aa3;
+        }
+
+
+        .nav-buttons {
+            display: flex;
+            gap: 13px;
+        }
+
+
+        .nav-buttons a {
+            text-decoration: none;
+            font-weight: 600;
+            transition: 0.25s;
+        }
+
+
+        .login-button {
+            color: #6240a8;
+
+            padding: 11px 22px;
+
+            border: 1px solid #6240a8;
+            border-radius: 30px;
+        }
+
+
+        .login-button:hover {
+            background: #f3edff;
+        }
+
+
+        .signup-button {
+            color: white;
+
+            padding: 12px 23px;
+
+            background: linear-gradient(
+                135deg,
+                #6240a8,
+                #a8579c
+            );
+
+            border-radius: 30px;
+
+            box-shadow: 0 8px 22px rgba(98, 64, 168, 0.22);
+        }
+
+
+        .signup-button:hover {
+            transform: translateY(-2px);
+
+            box-shadow: 0 11px 28px rgba(98, 64, 168, 0.3);
+        }
+
+
+        /* ------------------------------
+           HERO
+        ------------------------------ */
+
+        .hero {
+
+            min-height: 100vh;
+
+            padding: 150px 8% 80px;
+
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+
+            gap: 60px;
+
+            background:
+                radial-gradient(
+                    circle at top right,
+                    rgba(218, 184, 255, 0.5),
+                    transparent 35%
+                ),
+
+                radial-gradient(
+                    circle at bottom left,
+                    rgba(255, 205, 235, 0.45),
+                    transparent 35%
+                ),
+
+                linear-gradient(
+                    135deg,
+                    #fffafd,
+                    #f7f2ff
+                );
+        }
+
+
+        .hero-text {
+            max-width: 680px;
+        }
+
+
+        .small-heading {
+            display: inline-block;
+
+            color: #865cbf;
+
+            background: #eee5ff;
+
+            border-radius: 30px;
+
+            padding: 8px 16px;
+
+            font-size: 14px;
+            font-weight: 700;
+
+            margin-bottom: 25px;
+        }
+
+
+        .hero h1 {
+            font-size: 68px;
+            line-height: 1.08;
+
+            letter-spacing: -3px;
+
+            margin-bottom: 24px;
+
+            color: #27213c;
+        }
+
+
+        .hero h1 span {
+            background: linear-gradient(
+                135deg,
+                #724db5,
+                #bd5da3
+            );
+
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+
+        .hero-description {
+            max-width: 600px;
+
+            color: #6e6879;
+
+            font-size: 19px;
+            line-height: 1.8;
+
+            margin-bottom: 35px;
+        }
+
+
+        .hero-buttons {
+            display: flex;
+            gap: 16px;
+
+            margin-bottom: 45px;
+        }
+
+
+        .hero-buttons a {
+            text-decoration: none;
+
+            padding: 15px 30px;
+
+            border-radius: 35px;
+
+            font-size: 16px;
+            font-weight: 700;
+
+            transition: 0.25s;
+        }
+
+
+        .get-started {
+            background: linear-gradient(
+                135deg,
+                #6240a8,
+                #ad569e
+            );
+
+            color: white;
+
+            box-shadow: 0 10px 30px rgba(98, 64, 168, 0.25);
+        }
+
+
+        .get-started:hover {
+            transform: translateY(-3px);
+
+            box-shadow: 0 14px 35px rgba(98, 64, 168, 0.34);
+        }
+
+
+        .hero-login {
+            color: #554272;
+
+            background: white;
+
+            border: 1px solid #ded5ea;
+        }
+
+
+        .hero-login:hover {
+            background: #f8f4ff;
+        }
+
+
+        /* ------------------------------
+           SMALL TRUST TEXT
+        ------------------------------ */
+
+        .mini-features {
+            display: flex;
+            gap: 28px;
+
+            flex-wrap: wrap;
+
+            color: #736b7e;
+
+            font-size: 14px;
+        }
+
+
+        .mini-features div {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+
+        .check {
+            width: 21px;
+            height: 21px;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            border-radius: 50%;
+
+            background: #e9ddff;
+
+            color: #6848a8;
+
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+
+        /* ------------------------------
+           RIGHT SIDE PREVIEW CARD
+        ------------------------------ */
+
+        .hero-visual {
+            width: 470px;
+            max-width: 100%;
+        }
+
+
+        .dashboard-preview {
+
+            background: rgba(255, 255, 255, 0.85);
+
+            border: 1px solid rgba(125, 94, 170, 0.15);
+
+            border-radius: 28px;
+
+            padding: 28px;
+
+            box-shadow:
+                0 30px 70px rgba(86, 57, 130, 0.18);
+
+            backdrop-filter: blur(15px);
+        }
+
+
+        .preview-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+
+            margin-bottom: 26px;
+        }
+
+
+        .preview-title {
+            font-weight: 700;
+            font-size: 18px;
+        }
+
+
+        .preview-date {
+            color: #948b9d;
+            font-size: 13px;
+        }
+
+
+        .welcome-card {
+            background: linear-gradient(
+                135deg,
+                #6949ac,
+                #aa5c9e
+            );
+
+            color: white;
+
+            border-radius: 20px;
+
+            padding: 25px;
+
+            margin-bottom: 20px;
+        }
+
+
+        .welcome-card h3 {
+            margin-bottom: 7px;
+            font-size: 22px;
+        }
+
+
+        .welcome-card p {
+            opacity: 0.82;
+            font-size: 14px;
+        }
+
+
+        .preview-grid {
+            display: grid;
+
+            grid-template-columns: repeat(2, 1fr);
+
+            gap: 13px;
+        }
+
+
+        .preview-box {
+            background: #faf8fd;
+
+            border: 1px solid #eee8f4;
+
+            border-radius: 16px;
+
+            padding: 18px;
+        }
+
+
+        .preview-icon {
+            font-size: 22px;
+            margin-bottom: 10px;
+        }
+
+
+        .preview-box h4 {
+            font-size: 14px;
+            margin-bottom: 5px;
+
+            color: #403752;
+        }
+
+
+        .preview-box p {
+            color: #958b9e;
+            font-size: 12px;
+        }
+
+
+        /* ------------------------------
+           FEATURES SECTION
+        ------------------------------ */
+
+        .features-section {
+            padding: 100px 8%;
+
+            text-align: center;
+
+            background: white;
+        }
+
+
+        .section-label {
+            color: #8759ba;
+
+            font-size: 14px;
+            font-weight: 700;
+
+            text-transform: uppercase;
+            letter-spacing: 2px;
+
+            margin-bottom: 12px;
+        }
+
+
+        .features-section h2 {
+            font-size: 42px;
+
+            margin-bottom: 15px;
+
+            letter-spacing: -1px;
+        }
+
+
+        .section-description {
+            max-width: 650px;
+
+            margin: 0 auto 55px;
+
+            color: #766e80;
+
+            font-size: 17px;
+            line-height: 1.7;
+        }
+
+
+        .feature-grid {
+            display: grid;
+
+            grid-template-columns:
+                repeat(auto-fit, minmax(220px, 1fr));
+
+            gap: 22px;
+
+            max-width: 1150px;
+
+            margin: auto;
+        }
+
+
+        .feature-card {
+            text-align: left;
+
+            padding: 30px;
+
+            border: 1px solid #eee8f3;
+
+            border-radius: 22px;
+
+            background: #fdfcff;
+
+            transition: 0.25s;
+        }
+
+
+        .feature-card:hover {
+            transform: translateY(-6px);
+
+            box-shadow:
+                0 18px 45px rgba(81, 56, 115, 0.1);
+        }
+
+
+        .feature-icon {
+            font-size: 28px;
+
+            margin-bottom: 18px;
+        }
+
+
+        .feature-card h3 {
+            margin-bottom: 10px;
+
+            font-size: 18px;
+        }
+
+
+        .feature-card p {
+            color: #7d7585;
+
+            line-height: 1.6;
+
+            font-size: 14px;
+        }
+
+
+        /* ------------------------------
+           BOTTOM CTA
+        ------------------------------ */
+
+        .cta {
+
+            margin: 30px 8% 90px;
+
+            padding: 70px 30px;
+
+            text-align: center;
+
+            border-radius: 30px;
+
+            color: white;
+
+            background: linear-gradient(
+                135deg,
+                #503488,
+                #9f4f92
+            );
+        }
+
+
+        .cta h2 {
+            font-size: 38px;
+
+            margin-bottom: 14px;
+        }
+
+
+        .cta p {
+            opacity: 0.85;
+
+            font-size: 17px;
+
+            margin-bottom: 28px;
+        }
+
+
+        .cta a {
+
+            display: inline-block;
+
+            text-decoration: none;
+
+            background: white;
+
+            color: #68459e;
+
+            padding: 14px 30px;
+
+            border-radius: 30px;
+
+            font-weight: 700;
+
+            transition: 0.25s;
+        }
+
+
+        .cta a:hover {
+            transform: translateY(-3px);
+        }
+
+
+        /* ------------------------------
+           FOOTER
+        ------------------------------ */
+
+        footer {
+            padding: 30px;
+
+            text-align: center;
+
+            color: #8b8492;
+
+            font-size: 13px;
+
+            border-top: 1px solid #eee9f2;
+        }
+
+
+        /* ------------------------------
+           MOBILE
+        ------------------------------ */
+
+        @media(max-width: 900px) {
+
+            .hero {
+                flex-direction: column;
+
+                text-align: center;
+
+                padding-top: 140px;
+            }
+
+
+            .hero-text {
+                max-width: 700px;
+            }
+
+
+            .hero h1 {
+                font-size: 52px;
+            }
+
+
+            .hero-description {
+                margin-left: auto;
+                margin-right: auto;
+            }
+
+
+            .hero-buttons {
+                justify-content: center;
+            }
+
+
+            .mini-features {
+                justify-content: center;
+            }
+
+        }
+
+
+        @media(max-width: 600px) {
+
+            nav {
+                padding: 0 5%;
+            }
+
+
+            .logo {
+                font-size: 24px;
+            }
+
+
+            .nav-buttons a {
+                padding: 9px 14px;
+
+                font-size: 13px;
+            }
+
+
+            .hero {
+                padding-left: 5%;
+                padding-right: 5%;
+            }
+
+
+            .hero h1 {
+                font-size: 43px;
+
+                letter-spacing: -2px;
+            }
+
+
+            .hero-description {
+                font-size: 16px;
+            }
+
+
+            .hero-buttons {
+                flex-direction: column;
+            }
+
+
+            .preview-grid {
+                grid-template-columns: 1fr;
+            }
+
+        }
+
+    </style>
+
+</head>
+
+
+<body>
+
+
+<!-- NAVIGATION -->
+
+<nav>
+
+    <div class="logo">
+        Rythm<span>Flo</span>
+    </div>
+
+
+    <div class="nav-buttons">
+
+        <a href="login.html"
+           class="login-button">
+            Log In
+        </a>
+
+
+        <a href="register.html"
+           class="signup-button">
+            Sign Up
+        </a>
+
+    </div>
+
+</nav>
+
+
+
+<!-- HERO -->
+
+<section class="hero">
+
+
+    <div class="hero-text">
+
+
+        <div class="small-heading">
+            ✦ Made for the rhythm of dance
+        </div>
+
+
+        <h1>
+
+            Manage your dance academy
+
+            <span>
+                beautifully.
+            </span>
+
+        </h1>
+
+
+        <p class="hero-description">
+
+            RythmFlo brings your students, classes,
+            attendance, progress and finances together
+            in one organized space — so you can spend
+            less time managing and more time teaching.
+
+        </p>
+
+
+        <div class="hero-buttons">
+
+            <a href="register.html"
+               class="get-started">
+
+                Create an Account →
+
+            </a>
+
+
+            <a href="login.html"
+               class="hero-login">
+
+                Log In
+
+            </a>
+
+        </div>
+
+
+        <div class="mini-features">
+
+            <div>
+                <span class="check">✓</span>
+                Simple to use
+            </div>
+
+            <div>
+                <span class="check">✓</span>
+                Secure accounts
+            </div>
+
+            <div>
+                <span class="check">✓</span>
+                Everything in one place
+            </div>
+
+        </div>
+
+
+    </div>
+
+
+
+    <!-- FAKE DASHBOARD PREVIEW -->
+
+    <div class="hero-visual">
+
+        <div class="dashboard-preview">
+
+
+            <div class="preview-header">
+
+                <div class="preview-title">
+                    RythmFlo Dashboard
+                </div>
+
+                <div class="preview-date">
+                    Your Academy
+                </div>
+
+            </div>
+
+
+            <div class="welcome-card">
+
+                <h3>
+                    Welcome back ✨
+                </h3>
+
+                <p>
+                    Everything you need to manage
+                    your academy is right here.
+                </p>
+
+            </div>
+
+
+            <div class="preview-grid">
+
+
+                <div class="preview-box">
+
+                    <div class="preview-icon">
+                        👥
+                    </div>
+
+                    <h4>
+                        Students
+                    </h4>
+
+                    <p>
+                        Manage students
+                    </p>
+
+                </div>
+
+
+                <div class="preview-box">
+
+                    <div class="preview-icon">
+                        ✓
+                    </div>
+
+                    <h4>
+                        Attendance
+                    </h4>
+
+                    <p>
+                        Track classes
+                    </p>
+
+                </div>
+
+
+                <div class="preview-box">
+
+                    <div class="preview-icon">
+                        📚
+                    </div>
+
+                    <h4>
+                        Courses
+                    </h4>
+
+                    <p>
+                        Organize learning
+                    </p>
+
+                </div>
+
+
+                <div class="preview-box">
+
+                    <div class="preview-icon">
+                        📈
+                    </div>
+
+                    <h4>
+                        Progress
+                    </h4>
+
+                    <p>
+                        Follow growth
+                    </p>
+
+                </div>
+
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+</section>
+
+
+
+<!-- FEATURES -->
+
+<section class="features-section">
+
+
+    <div class="section-label">
+        Everything in one place
+    </div>
+
+
+    <h2>
+        Built to keep your academy flowing.
+    </h2>
+
+
+    <p class="section-description">
+
+        From the first class of the day to the last
+        payment of the month, RythmFlo helps keep the
+        details organized while you focus on your students.
+
+    </p>
+
+
+
+    <div class="feature-grid">
+
+
+        <div class="feature-card">
+
+            <div class="feature-icon">
+                👥
+            </div>
+
+            <h3>
+                Student Management
+            </h3>
+
+            <p>
+
+                Keep student information, courses,
+                enrollment details and progress
+                organized in one place.
+
+            </p>
+
+        </div>
+
+
+
+        <div class="feature-card">
+
+            <div class="feature-icon">
+                📅
+            </div>
+
+            <h3>
+                Attendance
+            </h3>
+
+            <p>
+
+                Quickly record attendance and
+                keep track of classes without
+                juggling paperwork.
+
+            </p>
+
+        </div>
+
+
+
+        <div class="feature-card">
+
+            <div class="feature-icon">
+                📚
+            </div>
+
+            <h3>
+                Courses & Progress
+            </h3>
+
+            <p>
+
+                Organize courses, topics and
+                student progress as they continue
+                their dance journey.
+
+            </p>
+
+        </div>
+
+
+
+        <div class="feature-card">
+
+            <div class="feature-icon">
+                💰
+            </div>
+
+            <h3>
+                Finances
+            </h3>
+
+            <p>
+
+                Keep income, expenses and
+                academy transactions together
+                in one organized system.
+
+            </p>
+
+        </div>
+
+
+    </div>
+
+</section>
+
+
+
+<!-- BOTTOM CALL TO ACTION -->
+
+<section class="cta">
+
+    <h2>
+        Let your academy move with ease.
+    </h2>
+
+    <p>
+
+        Create your RythmFlo account and bring
+        everything behind your classes into one place.
+
+    </p>
+
+    <a href="register.html">
+        Get Started →
+    </a>
+
+</section>
+
+
+
+<footer>
+
+    © 2026 RythmFlo • Dance Academy Management
+
+</footer>
+
+
+</body>
+
+</html>

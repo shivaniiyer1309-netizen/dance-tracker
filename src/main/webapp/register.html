@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>Sign Up | RythmFlo</title>
+
+
+    <style>
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+
+        body {
+
+            min-height: 100vh;
+
+            font-family: "Segoe UI", Arial, sans-serif;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            background:
+                radial-gradient(
+                    circle at top right,
+                    rgba(218, 184, 255, 0.55),
+                    transparent 35%
+                ),
+                radial-gradient(
+                    circle at bottom left,
+                    rgba(255, 205, 235, 0.50),
+                    transparent 35%
+                ),
+                linear-gradient(
+                    135deg,
+                    #fffafd,
+                    #f7f2ff
+                );
+
+            color: #27213c;
+        }
+
+
+        .back-home {
+
+            position: absolute;
+
+            top: 30px;
+            left: 40px;
+
+            text-decoration: none;
+
+            color: #6c4ba1;
+
+            font-weight: 600;
+        }
+
+
+        .back-home:hover {
+            color: #a45294;
+        }
+
+
+        .container {
+
+            width: 100%;
+            max-width: 440px;
+
+            padding: 20px;
+        }
+
+
+        .logo {
+
+            text-align: center;
+
+            font-size: 32px;
+            font-weight: 750;
+
+            color: #6240a8;
+
+            margin-bottom: 25px;
+        }
+
+
+        .logo span {
+            color: #b15aa3;
+        }
+
+
+        .card {
+
+            background: rgba(255,255,255,0.93);
+
+            border:
+                1px solid
+                rgba(110,79,150,0.13);
+
+            border-radius: 28px;
+
+            padding: 42px;
+
+            box-shadow:
+                0 30px 70px
+                rgba(86,57,130,0.16);
+        }
+
+
+        h2 {
+
+            text-align: center;
+
+            font-size: 32px;
+
+            margin-bottom: 10px;
+        }
+
+
+        .subtitle {
+
+            text-align: center;
+
+            color: #81778b;
+
+            font-size: 15px;
+
+            line-height: 1.6;
+
+            margin-bottom: 30px;
+        }
+
+
+        label {
+
+            display: block;
+
+            font-size: 14px;
+            font-weight: 600;
+
+            color: #4e455a;
+
+            margin-bottom: 8px;
+        }
+
+
+        input {
+
+            width: 100%;
+
+            padding: 14px 15px;
+
+            margin-bottom: 20px;
+
+            border: 1px solid #ded7e7;
+
+            border-radius: 12px;
+
+            background: #fdfcff;
+
+            font-size: 15px;
+
+            outline: none;
+
+            transition: 0.2s;
+        }
+
+
+        input:focus {
+
+            border-color: #805db7;
+
+            box-shadow:
+                0 0 0 3px
+                rgba(128,93,183,0.11);
+        }
+
+
+        button {
+
+            width: 100%;
+
+            padding: 15px;
+
+            border: none;
+
+            border-radius: 30px;
+
+            background:
+                linear-gradient(
+                    135deg,
+                    #6240a8,
+                    #ad569e
+                );
+
+            color: white;
+
+            font-size: 16px;
+            font-weight: 700;
+
+            cursor: pointer;
+
+            transition: 0.25s;
+        }
+
+
+        button:hover {
+
+            transform: translateY(-2px);
+
+            box-shadow:
+                0 12px 28px
+                rgba(98,64,168,0.28);
+        }
+
+
+        .login-text {
+
+            text-align: center;
+
+            margin-top: 25px;
+
+            color: #81778b;
+
+            font-size: 14px;
+        }
+
+
+        .login-text a {
+
+            color: #754cac;
+
+            text-decoration: none;
+
+            font-weight: 700;
+        }
+
+
+        .login-text a:hover {
+            color: #a45294;
+        }
+
+
+        .security-note {
+
+            text-align: center;
+
+            background: #f6f1ff;
+
+            color: #766c80;
+
+            font-size: 12px;
+
+            line-height: 1.5;
+
+            margin-top: 22px;
+
+            padding: 12px;
+
+            border-radius: 12px;
+        }
+
+
+        @media(max-width: 500px) {
+
+            .card {
+                padding: 30px 25px;
+            }
+
+            .back-home {
+                left: 20px;
+            }
+        }
+
+    </style>
+
+</head>
+
+
+<body>
+
+
+<a href="index.html"
+   class="back-home">
+
+    ← Back to Home
+
+</a>
+
+
+
+<div class="container">
+
+
+    <div class="logo">
+
+        Rythm<span>Flo</span>
+
+    </div>
+
+
+    <div class="card">
+
+
+        <h2>
+            Create your account
+        </h2>
+
+
+        <p class="subtitle">
+
+            Join RythmFlo and keep your
+            dance academy organized in one place.
+
+        </p>
+
+
+
+        <form
+            action="RegisterServlet"
+            method="post">
+
+
+            <label for="email">
+                Email Address
+            </label>
+
+
+            <input
+                type="email"
+                id="email"
+                name="email"
+                placeholder="Enter your email"
+                required>
+
+
+
+            <label for="password">
+                Password
+            </label>
+
+
+            <input
+                type="password"
+                id="password"
+                name="password"
+                placeholder="Create a password"
+                required>
+
+
+
+            <button type="submit">
+
+                Create Account →
+
+            </button>
+
+
+        </form>
+
+
+
+        <div class="security-note">
+
+            🔒 Your password is securely protected
+            before being stored.
+
+        </div>
+
+
+
+        <div class="login-text">
+
+            Already have an account?
+
+            <a href="login.html">
+                Log in
+            </a>
+
+        </div>
+
+
+    </div>
+
+</div>
+
+
+</body>
+
+</html>

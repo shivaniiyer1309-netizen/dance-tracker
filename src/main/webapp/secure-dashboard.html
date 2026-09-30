@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <title>RythmFlo</title>
+
+    <script>
+
+        /*
+         * This flag exists only in the tab
+         * where the user successfully logged in.
+         */
+
+        if (sessionStorage.getItem("rythmfloLoggedIn") !== "yes") {
+
+            window.location.replace("login.html");
+
+        } else {
+
+            window.location.replace("display.html");
+
+        }
+
+    </script>
+
+    <style>
+
+        html,
+        body {
+
+            margin: 0;
+
+            padding: 0;
+
+            width: 100%;
+
+            height: 100%;
+
+            overflow: hidden;
+
+        }
+
+        iframe {
+
+            width: 100%;
+
+            height: 100%;
+
+            border: none;
+
+        }
+
+    </style>
+
+</head>
+
+<body>
+
+    <!-- Your ORIGINAL dashboard stays unchanged -->
+
+</body>
+
+</html>

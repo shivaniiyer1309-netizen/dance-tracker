@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>RythmFlo</title>
+</head>
+
+<body>
+
+<script>
+
+    /*
+     * Give THIS TAB permission
+     * to open the dashboard.
+     */
+    sessionStorage.setItem(
+        "rythmfloLoggedIn",
+        "yes"
+    );
+
+
+    /*
+     * Then go to the secure dashboard.
+     */
+    window.location.replace(
+        "secure-dashboard.html"
+    );
+
+</script>
+
+</body>
+
+</html>
