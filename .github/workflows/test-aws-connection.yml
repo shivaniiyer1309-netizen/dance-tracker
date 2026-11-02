@@ -1,0 +1,24 @@
+
+name: Test AWS Connection
+
+on:
+  workflow_dispatch:
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  test-aws:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Connect to AWS using OIDC
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: arn:aws:iam::710280691467:role/DanceTracker-GitHubDeploy-Role
+          aws-region: us-east-2
+
+      - name: Verify AWS identity
+        run: |
+          aws sts get-caller-identity --query Arn --output text
+          echo "AWS OIDC CONNECTION: SUCCESS"
