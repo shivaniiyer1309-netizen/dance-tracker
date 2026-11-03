@@ -2,6 +2,9 @@
 name: Deploy RythmFlo
 
 on:
+  push:
+    branches:
+      - main
   workflow_dispatch:
 
 permissions:
